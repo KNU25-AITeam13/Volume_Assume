@@ -60,7 +60,8 @@ def volume_calculation_core(
         ref_px_len: float,
         ref_real_cm: float,
         density_g_per_ml: float = 1.0,
-        is_fallback_mode: bool = False
+        is_fallback_mode: bool = False,
+        provided_f_px: float = None
     ):
     
     H, W = Z_scene.shape
@@ -91,9 +92,14 @@ def volume_calculation_core(
         f_px = (ref_px_len * dist_ref_m) / (ref_real_cm / 100.0)
         method_str = f"기준물체 사용 (수저 {ref_real_cm}cm)"
     else:
-        f_px = get_focal_length_from_fov(W, fov_deg=72.0)
+        # Fallback 모드: provided_f_px 우선 사용
+        if provided_f_px is not None:
+            f_px = provided_f_px
+            method_str = "Depth Pro 초점거리 사용"
+        else:
+            f_px = get_focal_length_from_fov(W, fov_deg=72.0)
+            method_str = "기준물체 없음 (화각 72도)"
         ref_px_len = 0
-        method_str = "기준물체 없음 (화각 72도)"
 
     # 4. 부피 적분 (원본 Depth 사용)
     valid_food = food_mask & (~np.isnan(Z_scene))
