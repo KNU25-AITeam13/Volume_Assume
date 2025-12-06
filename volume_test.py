@@ -108,15 +108,14 @@ def volume_calculation_core(
     volumes_m3 = heights_m * ((z_measured / f_px) ** 2)
     total_volume_ml = np.sum(volumes_m3) * 1e6
     
-    # [수정됨] 사용자의 요청: Fallback 모드일 때 최종 부피에만 0.1 곱하기
+    # Fallback 모드일 때 최종 부피에만 0.1 곱하기
     if is_fallback_mode:
-        print(" [Scale] 기준물체 부재로 최종 부피에 0.1을 곱합니다.")
-        total_volume_ml = total_volume_ml * 0.1
-        method_str
+        total_volume_ml = total_volume_ml * 0.2
+        
     
     return {
-        "volume_ml": total_volume_ml,
-        "mass_g": total_volume_ml * density_g_per_ml,
+        "volume_ml": total_volume_ml * 0.5,
+        "mass_g": total_volume_ml * density_g_per_ml * 0.5,
         "max_height_cm": max_height_cm,
         "method": method_str,
         "avg_depth_m": dist_ref_m
@@ -204,6 +203,7 @@ def main():
         Z_scene = np.load(args.depth).astype(np.float32)
     else:
         Z_scene = cv2.imread(args.depth, cv2.IMREAD_UNCHANGED).astype(np.float32)
+    
     Z_scene *= args.depth_scale
 
     detected_refs, food_mask, bg_candidate_mask, logs, food_names = yolo_inference(args.image, args.yolo_weights, Z_scene.shape)
@@ -229,9 +229,9 @@ def main():
                 break
     
     if found_ref:
-        print(f" 기준 물체 감지됨: [{found_ref}]")
+        print(f"✅ 기준 물체 감지됨: [{found_ref}]")
     else:
-        print(" 기준 물체 없음 -> DepthPro 화각 모드")
+        print("⚠️ 기준 물체 없음 -> DepthPro 화각 모드")
         is_fallback = True
 
     res = volume_calculation_core(
@@ -248,7 +248,7 @@ def main():
 
     print("\n" + "="*40)
     print(f" [분석 결과]")
-    print(f"  - 음식 종류: {food_display}")
+    print(f"  🍎 음식 종류: {food_display}")
     print(f"  - 추정 부피 : {res['volume_ml']:.1f} ml")
     print(f"  - 추정 질량 : {res['mass_g']:.1f} g")
     print(f"  - 최대 높이 : {res['max_height_cm']:.2f} cm")
