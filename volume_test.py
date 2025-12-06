@@ -229,9 +229,9 @@ def main():
                 break
     
     if found_ref:
-        print(f"✅ 기준 물체 감지됨: [{found_ref}]")
+        print(f"기준 물체 감지됨: [{found_ref}]")
     else:
-        print("⚠️ 기준 물체 없음 -> DepthPro 화각 모드")
+        print("기준 물체 없음 -> DepthPro 화각 모드")
         is_fallback = True
 
     res = volume_calculation_core(
@@ -248,7 +248,7 @@ def main():
 
     print("\n" + "="*40)
     print(f" [분석 결과]")
-    print(f"  🍎 음식 종류: {food_display}")
+    print(f"  - 음식 종류: {food_display}")
     print(f"  - 추정 부피 : {res['volume_ml']:.1f} ml")
     print(f"  - 추정 질량 : {res['mass_g']:.1f} g")
     print(f"  - 최대 높이 : {res['max_height_cm']:.2f} cm")
@@ -257,3 +257,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
